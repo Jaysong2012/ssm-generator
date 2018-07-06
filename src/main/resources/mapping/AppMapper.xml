@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caimatech.riskcontrol.db.mapper.AppMapper">
+  <resultMap id="BaseResultMap" type="com.caimatech.riskcontrol.db.entity.App">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="app_name" jdbcType="VARCHAR" property="appName" />
+    <result column="switch" jdbcType="TINYINT" property="er" />
+    <result column="rule" jdbcType="VARCHAR" property="rule" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, app_name, switch, rule
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rc_app
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from rc_app
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.caimatech.riskcontrol.db.entity.App">
+    insert into rc_app (id, app_name, switch, 
+      rule)
+    values (#{id,jdbcType=BIGINT}, #{appName,jdbcType=VARCHAR}, #{switch,jdbcType=TINYINT}, 
+      #{rule,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.caimatech.riskcontrol.db.entity.App">
+    insert into rc_app
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="appName != null">
+        app_name,
+      </if>
+      <if test="switch != null">
+        switch,
+      </if>
+      <if test="rule != null">
+        rule,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="appName != null">
+        #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="switch != null">
+        #{switch,jdbcType=TINYINT},
+      </if>
+      <if test="rule != null">
+        #{rule,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.caimatech.riskcontrol.db.entity.App">
+    update rc_app
+    <set>
+      <if test="appName != null">
+        app_name = #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="switch != null">
+        switch = #{switch,jdbcType=TINYINT},
+      </if>
+      <if test="rule != null">
+        rule = #{rule,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.caimatech.riskcontrol.db.entity.App">
+    update rc_app
+    set app_name = #{appName,jdbcType=VARCHAR},
+      switch = #{switch,jdbcType=TINYINT},
+      rule = #{rule,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

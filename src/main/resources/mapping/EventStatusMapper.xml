@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caimatech.riskcontrol.db.mapper.EventStatusMapper">
+  <resultMap id="BaseResultMap" type="com.caimatech.riskcontrol.db.entity.EventStatus">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="app_id" jdbcType="BIGINT" property="appId" />
+    <result column="event_id" jdbcType="VARCHAR" property="eventId" />
+    <result column="event_status" jdbcType="TINYINT" property="eventStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, app_id, event_id, event_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rc_event_status
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="selectByAppId" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from rc_event_status
+      where app_id = #{appId, jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from rc_event_status
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.caimatech.riskcontrol.db.entity.EventStatus">
+    insert into rc_event_status (id, app_id, event_id, 
+      event_status)
+    values (#{id,jdbcType=BIGINT}, #{appId,jdbcType=BIGINT}, #{eventId,jdbcType=VARCHAR}, 
+      #{eventStatus,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.caimatech.riskcontrol.db.entity.EventStatus">
+    insert into rc_event_status
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="appId != null">
+        app_id,
+      </if>
+      <if test="eventId != null">
+        event_id,
+      </if>
+      <if test="eventStatus != null">
+        event_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=BIGINT},
+      </if>
+      <if test="eventId != null">
+        #{eventId,jdbcType=VARCHAR},
+      </if>
+      <if test="eventStatus != null">
+        #{eventStatus,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.caimatech.riskcontrol.db.entity.EventStatus">
+    update rc_event_status
+    <set>
+      <if test="appId != null">
+        app_id = #{appId,jdbcType=BIGINT},
+      </if>
+      <if test="eventId != null">
+        event_id = #{eventId,jdbcType=VARCHAR},
+      </if>
+      <if test="eventStatus != null">
+        event_status = #{eventStatus,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.caimatech.riskcontrol.db.entity.EventStatus">
+    update rc_event_status
+    set app_id = #{appId,jdbcType=BIGINT},
+      event_id = #{eventId,jdbcType=VARCHAR},
+      event_status = #{eventStatus,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

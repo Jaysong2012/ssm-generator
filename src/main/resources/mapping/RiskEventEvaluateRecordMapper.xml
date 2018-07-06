@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caimatech.riskcontrol.db.mapper.RiskEventEvaluateRecordMapper">
+  <resultMap id="BaseResultMap" type="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecord">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="id_no" jdbcType="VARCHAR" property="idNo" />
+    <result column="mobile_no" jdbcType="VARCHAR" property="mobileNo" />
+    <result column="session_key" jdbcType="VARCHAR" property="sessionKey" />
+    <result column="event_id" jdbcType="VARCHAR" property="eventId" />
+    <result column="event_time" jdbcType="TIMESTAMP" property="eventTime" />
+    <result column="success" jdbcType="TINYINT" property="success" />
+    <result column="error_code" jdbcType="VARCHAR" property="errorCode" />
+    <result column="error_msg" jdbcType="VARCHAR" property="errorMsg" />
+    <result column="result_code" jdbcType="VARCHAR" property="resultCode" />
+    <result column="result_desc" jdbcType="VARCHAR" property="resultDesc" />
+    <result column="flow_no" jdbcType="VARCHAR" property="flowNo" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecordWithBLOBs">
+    <result column="args_info" jdbcType="LONGVARCHAR" property="argsInfo" />
+    <result column="result_detail" jdbcType="LONGVARCHAR" property="resultDetail" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, user_name, id_no, mobile_no, session_key, event_id, event_time, success, 
+    error_code, error_msg, result_code, result_desc, flow_no
+  </sql>
+  <sql id="Blob_Column_List">
+    args_info, result_detail
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from rc_risk_event_evaluate_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectByUserId" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from rc_risk_event_evaluate_record
+      where user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+  <select id="findByCustomerIdAndEventId"
+          resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rc_risk_event_evaluate_record
+    where user_id = #{userId,jdbcType=INTEGER}
+    and event_id = #{eventId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from rc_risk_event_evaluate_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecordWithBLOBs">
+    insert into rc_risk_event_evaluate_record (id, user_id, user_name, 
+      id_no, mobile_no, session_key, 
+      event_id, event_time, success, 
+      error_code, error_msg, result_code, 
+      result_desc, flow_no, args_info, 
+      result_detail)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, 
+      #{idNo,jdbcType=VARCHAR}, #{mobileNo,jdbcType=VARCHAR}, #{sessionKey,jdbcType=VARCHAR}, 
+      #{eventId,jdbcType=VARCHAR}, #{eventTime,jdbcType=TIMESTAMP}, #{success,jdbcType=TINYINT}, 
+      #{errorCode,jdbcType=VARCHAR}, #{errorMsg,jdbcType=VARCHAR}, #{resultCode,jdbcType=VARCHAR}, 
+      #{resultDesc,jdbcType=VARCHAR}, #{flowNo,jdbcType=VARCHAR}, #{argsInfo,jdbcType=LONGVARCHAR}, 
+      #{resultDetail,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecordWithBLOBs">
+    insert into rc_risk_event_evaluate_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="idNo != null">
+        id_no,
+      </if>
+      <if test="mobileNo != null">
+        mobile_no,
+      </if>
+      <if test="sessionKey != null">
+        session_key,
+      </if>
+      <if test="eventId != null">
+        event_id,
+      </if>
+      <if test="eventTime != null">
+        event_time,
+      </if>
+      <if test="success != null">
+        success,
+      </if>
+      <if test="errorCode != null">
+        error_code,
+      </if>
+      <if test="errorMsg != null">
+        error_msg,
+      </if>
+      <if test="resultCode != null">
+        result_code,
+      </if>
+      <if test="resultDesc != null">
+        result_desc,
+      </if>
+      <if test="flowNo != null">
+        flow_no,
+      </if>
+      <if test="argsInfo != null">
+        args_info,
+      </if>
+      <if test="resultDetail != null">
+        result_detail,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null">
+        #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNo != null">
+        #{mobileNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sessionKey != null">
+        #{sessionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="eventId != null">
+        #{eventId,jdbcType=VARCHAR},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="success != null">
+        #{success,jdbcType=TINYINT},
+      </if>
+      <if test="errorCode != null">
+        #{errorCode,jdbcType=VARCHAR},
+      </if>
+      <if test="errorMsg != null">
+        #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="resultCode != null">
+        #{resultCode,jdbcType=VARCHAR},
+      </if>
+      <if test="resultDesc != null">
+        #{resultDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="flowNo != null">
+        #{flowNo,jdbcType=VARCHAR},
+      </if>
+      <if test="argsInfo != null">
+        #{argsInfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="resultDetail != null">
+        #{resultDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecordWithBLOBs">
+    update rc_risk_event_evaluate_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null">
+        id_no = #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNo != null">
+        mobile_no = #{mobileNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sessionKey != null">
+        session_key = #{sessionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="eventId != null">
+        event_id = #{eventId,jdbcType=VARCHAR},
+      </if>
+      <if test="eventTime != null">
+        event_time = #{eventTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="success != null">
+        success = #{success,jdbcType=TINYINT},
+      </if>
+      <if test="errorCode != null">
+        error_code = #{errorCode,jdbcType=VARCHAR},
+      </if>
+      <if test="errorMsg != null">
+        error_msg = #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="resultCode != null">
+        result_code = #{resultCode,jdbcType=VARCHAR},
+      </if>
+      <if test="resultDesc != null">
+        result_desc = #{resultDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="flowNo != null">
+        flow_no = #{flowNo,jdbcType=VARCHAR},
+      </if>
+      <if test="argsInfo != null">
+        args_info = #{argsInfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="resultDetail != null">
+        result_detail = #{resultDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecordWithBLOBs">
+    update rc_risk_event_evaluate_record
+    set user_id = #{userId,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      id_no = #{idNo,jdbcType=VARCHAR},
+      mobile_no = #{mobileNo,jdbcType=VARCHAR},
+      session_key = #{sessionKey,jdbcType=VARCHAR},
+      event_id = #{eventId,jdbcType=VARCHAR},
+      event_time = #{eventTime,jdbcType=TIMESTAMP},
+      success = #{success,jdbcType=TINYINT},
+      error_code = #{errorCode,jdbcType=VARCHAR},
+      error_msg = #{errorMsg,jdbcType=VARCHAR},
+      result_code = #{resultCode,jdbcType=VARCHAR},
+      result_desc = #{resultDesc,jdbcType=VARCHAR},
+      flow_no = #{flowNo,jdbcType=VARCHAR},
+      args_info = #{argsInfo,jdbcType=LONGVARCHAR},
+      result_detail = #{resultDetail,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.caimatech.riskcontrol.db.entity.RiskEventEvaluateRecord">
+    update rc_risk_event_evaluate_record
+    set user_id = #{userId,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      id_no = #{idNo,jdbcType=VARCHAR},
+      mobile_no = #{mobileNo,jdbcType=VARCHAR},
+      session_key = #{sessionKey,jdbcType=VARCHAR},
+      event_id = #{eventId,jdbcType=VARCHAR},
+      event_time = #{eventTime,jdbcType=TIMESTAMP},
+      success = #{success,jdbcType=TINYINT},
+      error_code = #{errorCode,jdbcType=VARCHAR},
+      error_msg = #{errorMsg,jdbcType=VARCHAR},
+      result_code = #{resultCode,jdbcType=VARCHAR},
+      result_desc = #{resultDesc,jdbcType=VARCHAR},
+      flow_no = #{flowNo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

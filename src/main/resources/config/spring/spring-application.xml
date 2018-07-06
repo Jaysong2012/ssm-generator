@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context ="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+           classpath:/org/springframework/schema/beans/spring-beans-4.3.xsd
+           http://www.springframework.org/schema/aop
+           classpath:/org/springframework/schema/aop/spring-aop-4.3.xsd
+           http://www.springframework.org/schema/tx
+           classpath:/org/springframework/schema/tx/spring-tx-4.3.xsd
+           http://www.springframework.org/schema/context
+           classpath:/org/springframework/schema/context/spring-context-4.3.xsd">
+           
+    <!-- 只解析除controller之外的注解(即解析service、dao), 避免重复加载导致事务失效  -->
+    <context:component-scan base-package="com.caimatech.riskcontrol">
+        <!-- annotation为spting-mvc中解析的内容 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+    <!-- 加载properties配置文件 -->  
+    <bean id="propertyConfigurer"  
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <property name="locations">  
+            <list>  
+                <value>classpath*:config/jdbc/jdbc.properties</value>  
+                <value>classpath*:config/task/task.properties</value>
+            </list>  
+        </property>  
+    </bean>  
+
+    
+    <!-- 定义数据源的信息 -->
+    <bean id="parentDataSource" class="com.alibaba.druid.pool.DruidDataSource" 
+            init-method="init" 
+            destroy-method="close">
+      <!-- 基本属性driverClassName、 url、user、password -->
+      <property name="driverClassName" value="${master.jdbc.driverClassName}" />
+      <property name="url" value="${master.jdbc.url}" />
+      <property name="username" value="${master.jdbc.username}" />
+      <property name="password" value="${master.jdbc.password}" />
+        
+      <!-- 配置初始化大小、最小、最大 -->
+      <property name="initialSize" value="10" />
+      <property name="minIdle" value="10" /> 
+      <property name="maxActive" value="100" />
+   
+      <!-- 配置获取连接等待超时的时间 -->
+      <property name="maxWait" value="60000" />
+   
+      <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+      <property name="timeBetweenEvictionRunsMillis" value="60000" />
+   
+      <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+      <property name="minEvictableIdleTimeMillis" value="300000" />
+    
+      <property name="validationQuery" value="SELECT 'x'" />
+      <property name="testWhileIdle" value="true" />
+      <property name="testOnBorrow" value="false" />
+      <property name="testOnReturn" value="false" />
+   
+      <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+      <property name="poolPreparedStatements" value="false" />
+      <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+   
+      <!-- 配置监控统计拦截的filters -->
+      <!-- <property name="filters" value="stat,log4j" /> -->
+    <!-- 监控统计拦截的filters,日志记录 edited by zhangpl 20140824 start -->
+      <!-- 并在filters属性中配置了log4j -->
+      <property name="proxyFilters">
+          <list>
+              <ref bean="stat-filter" />
+              <ref bean="log-filter" />
+          </list> 
+      </property>
+    <!-- 监控统计拦截的filters,日志记录 edited by zhangpl 20140824 end -->
+    <property name="filters">
+        <value>stat,wall,log4j</value>
+    </property>
+      <!-- 也可以通过connectProperties属性来打开mergeSql功能 -->
+      <!-- <property name="connectionProperties" value="druid.stat.mergeSql=true" />  -->
+      
+      <!-- 合并多个DruidDataSource的监控数据 -->
+      <property name="useGlobalDataSourceStat" value="true" />
+      
+    </bean>
+    
+    
+    <!-- 慢SQL记录  edited by songchao 20180318  start-->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="true" />
+        <property name="slowSqlMillis" value="1000" />
+        <property name="logSlowSql" value="true" />
+    </bean>
+    
+    <bean id="log-filter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+        <!-- <property name="resultSetLogEnabled" value="false" /> -->
+        <!-- <property name="statementExecutableSqlLogEnable" value="true" /> -->
+    </bean>
+    <!-- 慢SQL记录  edited by songchao 20180318  end-->
+
+    <!-- LDK主数据源-->
+    <bean id="masterDataSource" parent="parentDataSource">
+        <property name="driverClassName" value="${master.jdbc.driverClassName}" />
+        <property name="url" value="${master.jdbc.url}" />
+        <property name="username" value="${master.jdbc.username}" />
+        <property name="password" value="${master.jdbc.password}" />
+    </bean>
+    <!-- Account从数据源-->
+    <bean id="slaveDataSource" parent="parentDataSource">
+        <property name="driverClassName" value="${slave.jdbc.driverClassName}" />
+        <property name="url" value="${slave.jdbc.url}" />
+        <property name="username" value="${slave.jdbc.username}" />
+        <property name="password" value="${slave.jdbc.password}" />
+    </bean>
+    
+    
+    <bean id="dataSource" class="com.caimatech.riskcontrol.datasource.DynamicDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry key="master" value-ref="masterDataSource" />
+                <entry key="slave" value-ref="slaveDataSource" />
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="masterDataSource" />
+    </bean>
+    
+    <!-- 定义数据源的信息 -->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:config/mybatis/mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath:mapping/*.xml"></property>
+     </bean>
+     
+     <!-- Mapper接口所在包，Spring会自动查找其下的Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" 
+                  value="com.caimatech.riskcontrol.db.mapper"/>
+    </bean>
+
+     
+     <!-- 配置spring的生命式事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 切换数据源 -->  
+    <bean id="dataSourceAdvice" class="com.caimatech.riskcontrol.datasource.DataSourceAdvice" />
+    
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    
+    <aop:config>
+        <aop:advisor
+            pointcut="execution(* com.caimatech.riskcontrol.db.serviceImpl.*.*(..)) "
+            advice-ref="dataSourceAdvice" />  
+    </aop:config>
+    
+    <!-- 配置AOP，Spring是通过AOP来进行事务管理的 -->
+    <aop:config>
+    <!-- 设置pointCut表示哪些方法要加入事务处理 -->
+    <!-- 以下的事务是声明在DAO中，但是通常都会在Service来处理多个业务对象逻辑的关系，注入删除，更新等，此时如果在执行了一个步骤之后抛出异常
+    就会导致数据不完整，所以事务不应该在DAO层处理，而应该在service，这也就是Spring所提供的一个非常方便的工具，声明式事务 -->
+    <aop:pointcut id="allMethods" expression="execution(* com.caimatech.riskcontrol.db.serviceImpl.*.*(..)) " />
+    <!-- 通过advisor来确定具体要加入事务控制的方法 -->
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="allMethods" />
+    </aop:config>
+
+    <!-- 配置Advice(事务的传播特性) 即：配置哪些方法要加入事务控制 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes><!-- 让所有的方法都加入事务管理，为了提高效率，可以把一些查询之类的方法设置为只读的事务 -->
+    <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+    <tx:method name="list*" propagation="REQUIRED" read-only="true"/>
+    <tx:method name="count*" propagation="REQUIRED" read-only="true"/>
+    <!-- 以下方法都是可能设计修改的方法，就无法设置为只读 -->
+    <tx:method name="*" propagation="REQUIRED" />
+    <tx:method name="add*" propagation="REQUIRED"/>
+    <tx:method name="del*" propagation="REQUIRED"/>
+    <tx:method name="update*" propagation="REQUIRED"/>
+    <tx:method name="save*" propagation="REQUIRED"/>
+    </tx:attributes>
+    </tx:advice>
+
+    <bean id="druid-stat-interceptor"
+        class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+    </bean>
+
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+        scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.caimatech.riskcontrol.db.mapper.*</value>
+            </list>
+        </property>
+    </bean>
+
+    <aop:config>
+        <aop:advisor advice-ref="druid-stat-interceptor"
+            pointcut-ref="druid-stat-pointcut" />
+    </aop:config>
+    
+    <!-- more bean definitions go here -->
+    
+    <bean id="thredPoolTaskExecutor"  
+        class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">  
+        <!-- 核心线程数 -->  
+        <property name="corePoolSize" value="${task.core_pool_size}" />
+        <!-- 最大线程数 -->  
+        <property name="maxPoolSize" value="${task.max_pool_size}" />
+        <!-- 队列最大长度 >=mainExecutor.maxSize -->
+        <property name="queueCapacity" value="${task.queue_capacity}" />
+        <!-- 线程池维护线程所允许的空闲时间 -->  
+        <property name="keepAliveSeconds" value="${task.keep_alive_seconds}" />
+        <!-- 线程池对拒绝任务(无线程可用)的处理策略 ThreadPoolExecutor.CallerRunsPolicy策略 ,调用者的线程会执行该任务,如果执行器已关闭,则丢弃.  -->  
+        <property name="rejectedExecutionHandler">
+            <!-- AbortPolicy:直接抛出java.util.concurrent.RejectedExecutionException异常 -->
+            <!-- CallerRunsPolicy:主线程直接执行该任务，执行完之后尝试添加下一个任务到线程池中，可以有效降低向线程池内添加任务的速度 -->
+            <!-- DiscardOldestPolicy:抛弃旧的任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+            <!-- DiscardPolicy:抛弃当前任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+            <bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />
+        </property>
+    </bean>
+    
+    <bean id="threadPoolMonitorService" 
+        class="com.caimatech.riskcontrol.executor.ThreadPoolMonitorService">
+    </bean>
+    
+    <bean id="monitorStarter" 
+        class="com.caimatech.riskcontrol.executor.MonitorStarter" init-method="init">
+    </bean>
+    
+</beans>
