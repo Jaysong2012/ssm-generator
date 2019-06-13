@@ -3,24 +3,19 @@ package com.caimatech.riskcontrol.controller;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.ParseException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.caimatech.riskcontrol.db.serviceImpl.ExampleServiceImpl;
 import com.caimatech.riskcontrol.procotol.request.EventJudgeQueryArgs;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.fastjson.JSONObject;
 import com.caimatech.riskcontrol.business.Impl.EventJudgeBusinessImpl;
@@ -31,12 +26,8 @@ import com.caimatech.riskcontrol.procotol.base.ObjectResponse;
 import com.caimatech.riskcontrol.procotol.base.ReturnCode;
 import com.caimatech.riskcontrol.procotol.base.ReturnMsg;
 import com.caimatech.riskcontrol.procotol.request.EventJudgeArgs;
-import com.caimatech.riskcontrol.procotol.response.bean.RiskResult;
 import com.caimatech.riskcontrol.util.AesEncryptUtil;
 import com.caimatech.riskcontrol.util.Md5Util;
-import com.mucfc.ftc.aps.base.ServiceResponse;
-import com.mucfc.ftc.aps.sdk.exception.ServiceRequestException;
-import com.mucfc.ftc.tenant.server.common.FtcCaller;
 
 @Controller
 @RequestMapping("/c")
@@ -46,6 +37,9 @@ public class ReuqestController {
     
     @Autowired
     private EventJudgeBusinessImpl eventJudgeBusinessImpl;
+
+    @Autowired
+    private ExampleServiceImpl exampleService;
     
     @CrossOrigin(origins="*",maxAge=3600)
     @RequestMapping(value = "/i", method = {RequestMethod.POST,RequestMethod.GET},produces = "text/html;charset=UTF-8")
@@ -133,6 +127,17 @@ public class ReuqestController {
         return encryptResponse(objectResponse.toString());
     }
 
+    @GetMapping("/t")
+    @ResponseBody
+    public String test(){
+        try {
+            exampleService.exampleUse();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return "test";
+    }
+
     private ObjectResponse Risk_queryJudgeResult(Object args) {
         ObjectResponse objectResponse = new ObjectResponse();
         String argsStr = JSONObject.toJSONString(args);
@@ -152,7 +157,7 @@ public class ReuqestController {
             objectResponse.setReturnMsg(ReturnMsg.EMPTY_REQUEST);
             return objectResponse;
         }
-        return eventJudgeBusinessImpl.queryJudgeResult(requestArgs);
+        return null;
     }
 
     private ObjectResponse Risk_eventJudge(Object args, String ip) {
@@ -248,67 +253,5 @@ public class ReuqestController {
         return "";
     }
 
-    @CrossOrigin(origins="*",maxAge=3600)
-    @RequestMapping(value = "/t", method = {RequestMethod.POST,RequestMethod.GET},produces = "text/html;charset=UTF-8")
-    @ResponseBody
-    public String test(HttpServletRequest request,HttpServletResponse response) throws Exception {
-        
-        ObjectResponse objectResponse = new ObjectResponse();
-        
-        String serviceId = "risk.antifraud.event.decision"; // 平台提供的"反欺诈.风险事件评估接口"
-
-        // 组装业务参数
-        Map<String, String> bizContentMap = new HashMap<String, String>();
-        Map<String, Object> eventMap = new HashMap<String, Object>();
-        eventMap.put("tenantId", FtcCaller.tenantId);
-        eventMap.put("appId", FtcCaller.appId);
-        String flowNo = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
-        eventMap.put("flowNo", flowNo);
-        eventMap.put("beginTime", String.valueOf(new Date().getTime()));
-        eventMap.put("eventId", "xxxxxxx");
-        eventMap.put("userMobileNo", "18675534575");
-        eventMap.put("userName", "张XX");
-        eventMap.put("useridNo", "440526199412121111");
-        eventMap.put("useridType", "01");
-        eventMap.put("userContactPhone", "18800000000");
-        eventMap.put("longitude", "130.23");
-        eventMap.put("latitude", "23.28");
-        eventMap.put("organizationAddress", "广东省深圳市南山区科苑路1888号");
-        eventMap.put("accountAddressProvince", "广东省");
-        eventMap.put("accountAddressCity", "深圳市");
-        eventMap.put("accountAddressCounty", "南山区");
-        eventMap.put("accountAddressStreet", "科苑路1888号");
-        eventMap.put("homeAddress", "广东省深圳市南山区前湾一路18号");
-        eventMap.put("homeProvince", "广东省");
-        eventMap.put("homeCity", "深圳市");
-        eventMap.put("homeCounty", "南山区");
-        eventMap.put("homeStreet", "前湾一路18号");
-
-        // 参数'event'
-        bizContentMap.put("event", JSONObject.toJSONString(eventMap));
-
-
-        // 调用服务接口
-        ServiceResponse serviceResponse = null;
-        try {
-            serviceResponse = FtcCaller.callService(FtcCaller.appId, serviceId, bizContentMap,null);
-            logger.info(">>> response: " + JSONObject.toJSONString(serviceResponse));
-        } catch (ServiceRequestException e) {
-            logger.error("",e);
-        }
-        
-        if (!serviceResponse.getSuccess()) {
-            logger.error(">>> request execute fail, errorCode: {}, errorMsg: {}", serviceResponse.getErrorCode(), serviceResponse.getErrorMsg());
-            return "fail";
-        }
-        
-        String bizContent = serviceResponse.getBizContent();
-        RiskResult riskResult = JSONObject.parseObject(bizContent, RiskResult.class);
-        
-        objectResponse.setReturnCode(ReturnCode.SUCCESS);
-        objectResponse.setReturnMsg(ReturnMsg.SUCCESS);
-        objectResponse.setResponse(riskResult);
-        return objectResponse.toString();
-    }
 
 }

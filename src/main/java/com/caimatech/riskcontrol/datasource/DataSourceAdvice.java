@@ -17,12 +17,10 @@ public class DataSourceAdvice  implements MethodBeforeAdvice, AfterReturningAdvi
         DatabaseContextHolder.setCustomerType("master");
     }
     
-    @Override
     public void afterReturning(Object arg0, Method arg1, Object[] arg2, Object arg3) throws Throwable {
         
     }
 
-    @Override
     public void before(Method method, Object[] arg, Object target) throws Throwable {
         String className = target.getClass().getName();
         String methodName = method.getName();

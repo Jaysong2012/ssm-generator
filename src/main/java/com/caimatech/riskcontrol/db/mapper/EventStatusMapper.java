@@ -1,6 +1,5 @@
 package com.caimatech.riskcontrol.db.mapper;
 
-import com.caimatech.riskcontrol.db.entity.App;
 import com.caimatech.riskcontrol.db.entity.EventStatus;
 
 import java.util.List;

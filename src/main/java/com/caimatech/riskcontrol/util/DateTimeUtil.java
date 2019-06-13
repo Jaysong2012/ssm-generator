@@ -1,11 +1,11 @@
 package com.caimatech.riskcontrol.util;
 
+import org.springframework.util.StringUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
 
 public class DateTimeUtil {
 
@@ -37,7 +37,6 @@ public class DateTimeUtil {
             date = df.parse(time);
             return fdf.format(date);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -72,7 +71,6 @@ public class DateTimeUtil {
         try {
             date = df.parse(time);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
@@ -104,7 +102,6 @@ public class DateTimeUtil {
             date = df.parse(time);
             return dayformat.format(date);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -131,7 +128,7 @@ public class DateTimeUtil {
     
     /** 
      * 判断某一时间是否在一个区间内 
-     * @param sourceTime 
+     * @param startTime
      *            时间区间,半闭合,如[10:00-20:00) 
      * @param curTime 
      *            需要判断的时间 如10:00 
