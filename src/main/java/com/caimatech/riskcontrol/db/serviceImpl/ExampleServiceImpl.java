@@ -23,13 +23,13 @@ public class ExampleServiceImpl {
     private RoleMapper roleMapper;
 
     public void simpleUse(){
-//        Role role = new Role();
-//        role.setName("x");
-//        role.setPower("{}");
-//        role.setRemark("y");
-//        role.setStatus(1);
-//
-//        roleMapper.insertSelective(role);
+        Role role = new Role();
+        role.setName("x");
+        role.setPower("{}");
+        role.setRemark("y");
+        role.setStatus(1);
+
+        roleMapper.insertSelective(role);
 
         Role queryEntity = new Role();
         queryEntity.setStatus(1);
@@ -48,7 +48,7 @@ public class ExampleServiceImpl {
         roleExample.createCriteria()
                 .andCreateTimeBetween(simpleDateFormat.parse("2019-06-01 00:00:00"),simpleDateFormat.parse("2019-06-02 00:00:00"))
                 .andCreateTimeGreaterThanOrEqualTo(simpleDateFormat.parse("2019-06-01 12:00:00"))
-                .andIdIn(new ArrayList<Integer>(Arrays.asList(1,3,5,7,9)))
+                .andIdIn(new ArrayList<>(Arrays.asList(1,3,5,7,9)))
                 .andPowerIsNotNull()
                 .andNameLike("X")
                 .andPowerEqualTo("{}");
@@ -56,6 +56,7 @@ public class ExampleServiceImpl {
         criteria1.andCreateTimeLessThanOrEqualTo(simpleDateFormat.parse("2019-05-01 00:00:00"))
                 .andIdEqualTo(1);
         roleExample.or(criteria1);
+        roleExample.setOrderByClause("status desc, id desc");
 
         List<Role> roleList = roleMapper.selectByExample(roleExample);
 
